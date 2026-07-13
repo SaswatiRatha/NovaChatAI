@@ -36,6 +36,7 @@ function App() {
     if (!question.trim()) return;
 
     const currentQuestion = question;
+    setquestion("");
     let chatId = activeId;
     if (!chatId) {
       chatId = crypto.randomUUID();
@@ -43,6 +44,7 @@ function App() {
         { id: chatId, title: currentQuestion.slice(0, 40), results: [] },
         ...prev,
       ]);
+      setActiveId(chatId);
     }
 
     setChats((prev) =>
@@ -91,7 +93,12 @@ function App() {
       );
     } catch (error) {
       console.log(error);
+      setquestion(currentQuestion);
     }
+  };
+  const handleClearChat = () => {
+    localStorage.setItem("history", []);
+    setChats([]);
   };
   useEffect(() => {
     localStorage.setItem("history", JSON.stringify(chats));
@@ -105,6 +112,7 @@ function App() {
           activeId={activeId}
           onSelectChat={setActiveId}
           onNewChat={handleNewChat}
+          onClearChat={handleClearChat}
         />
       </div>
       <div className="col-span-4 px-4 py-2">
