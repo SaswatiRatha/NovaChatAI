@@ -3,17 +3,14 @@ import MarkdownComponents from "./MarkdownComponents";
 import { useEffect, useRef } from "react";
 const ChatQnA = ({ results }) => {
   const containerRef = useRef(null);
-  const latestAnswerRef = useRef(null);
+  const bottomRef = useRef(null);
+  console.log(results);
 
   useEffect(() => {
-    const last = results[results.length - 1];
-
-    if (last && !last.loading) {
-      latestAnswerRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
   }, [results]);
   return (
     <div
@@ -30,10 +27,7 @@ const ChatQnA = ({ results }) => {
             </div>
 
             <div className="flex justify-start">
-              <div
-                ref={index === results.length - 1 ? latestAnswerRef : null}
-                className="bg-zinc-700 rounded-b-2xl rounded-tr-2xl px-4 py-2 max-w-[80%] box-border"
-              >
+              <div className="bg-zinc-700 rounded-b-2xl rounded-tr-2xl px-4 py-2 max-w-[80%] box-border">
                 {item.loading ? (
                   <div className="flex gap-1 py-2">
                     <span className="w-2 h-2 rounded-full bg-white animate-bounce"></span>
@@ -49,6 +43,7 @@ const ChatQnA = ({ results }) => {
             </div>
           </div>
         ))}
+        <div ref={bottomRef} />
       </div>
     </div>
   );
