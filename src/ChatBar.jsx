@@ -21,7 +21,11 @@ const ChatBar = ({ handleAskQuestion, question, setquestion, isSending }) => {
         onClick={handleAskQuestion}
         className={`border-0 bg-none px-3 text-white cursor-pointer disabled:cursor-not-allowed disabled:text-gray-400`}
       >
-        Ask
+        <img
+          src="https://img.icons8.com/material-sharp/24/sent.png"
+          alt="send"
+          className="w-5 h-5 invert"
+        />
       </button>
     </div>
   );

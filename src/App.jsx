@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import ai from "./gemini";
-import RecentSearch from "./RecentSearch";
+import Sidebar from "./Sidebar";
 import ChatQnA from "./ChatQnA";
 import ChatBar from "./ChatBar";
 
+import { SmallSidebar } from "./SmallSidebar";
+
 function App() {
+  const [showSidebar, setShowSidebar] = useState(true);
   const [question, setquestion] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [chats, setChats] = useState(() => {
@@ -27,8 +30,7 @@ function App() {
       title: "New Chat",
       results: [],
     };
-    console.log(newChat);
-
+    //console.log(newChat);
     setChats((prev) => [newChat, ...prev]);
     setActiveId(newChat.id);
     setquestion("");
@@ -133,17 +135,29 @@ function App() {
 
   return (
     <div className="flex h-screen">
-      <div className="w-60 shrink-0 bg-zinc-800">
-        <RecentSearch
-          chats={chats}
-          activeId={activeId}
-          onSelectChat={setActiveId}
-          onNewChat={handleNewChat}
-          onClearChat={handleClearChat}
-        />
+      <div className="h-screen shrink-0 bg-zinc-800">
+        {showSidebar ? (
+          <Sidebar
+            chats={chats}
+            activeId={activeId}
+            onSelectChat={setActiveId}
+            onNewChat={handleNewChat}
+            onClearChat={handleClearChat}
+            setShowSidebar={setShowSidebar}
+          />
+        ) : (
+          <SmallSidebar
+            chats={chats}
+            activeId={activeId}
+            onSelectChat={setActiveId}
+            onNewChat={handleNewChat}
+            onClearChat={handleClearChat}
+            setShowSidebar={setShowSidebar}
+          />
+        )}
       </div>
       <div className="flex-1 px-4 py-2">
-        <ChatQnA results={results} />
+        <ChatQnA results={results} chatId={activeId} />
         <ChatBar
           handleAskQuestion={handleAskQuestion}
           question={question}
