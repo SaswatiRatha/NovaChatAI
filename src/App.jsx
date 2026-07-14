@@ -105,8 +105,8 @@ function App() {
   }, [chats]);
 
   return (
-    <div className="grid grid-cols-5 h-screen text-center">
-      <div className="col-span-1 bg-zinc-800">
+    <div className="flex h-screen">
+      <div className="w-60 shrink-0 bg-zinc-800">
         <RecentSearch
           chats={chats}
           activeId={activeId}
@@ -115,7 +115,7 @@ function App() {
           onClearChat={handleClearChat}
         />
       </div>
-      <div className="col-span-4 px-4 py-2">
+      <div className="flex-1 px-4 py-2">
         <ChatQnA results={results} />
         <ChatBar
           handleAskQuestion={handleAskQuestion}

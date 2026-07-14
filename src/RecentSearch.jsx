@@ -1,3 +1,5 @@
+import Logo from "./assets/Logo.png";
+import sidebar from "./assets/sidebar.png";
 const RecentSearch = ({
   chats,
   activeId,
@@ -6,9 +8,12 @@ const RecentSearch = ({
   onClearChat,
 }) => {
   return (
-    <div className="text-white py-2 text-left px-4 ">
-      <h1 className=" text-lg font-bold">Recent Searches</h1>
-      <div className="mt-2 flex flex-col gap-1">
+    <div className="text-white py-4 text-left px-4 ">
+      <div className="flex justify-between items-center">
+        <img src={Logo} alt="logo" className="w-7 h-7" onClick={onClearChat} />
+        <img src={sidebar} alt="sidebar" className="w-6 h-6 invert" />
+      </div>
+      <div className="mt-4 flex flex-col gap-1">
         <button
           onClick={onNewChat}
           className="flex gap-2 w-full items-center cursor-pointer hover:bg-zinc-500 rounded-md"
@@ -33,12 +38,14 @@ const RecentSearch = ({
         </button>
         <button></button>
       </div>
-      <div className="mt-2">
+
+      <div className="mt-4">
+        <h1 className=" text-base font-bold">Recents</h1>
         {chats.map((chat) => (
           <p
             key={chat.id}
             onClick={() => onSelectChat(chat.id)}
-            className={`${chat.id === activeId ? "bg-zinc-600" : ""} py-1 px-2 hover:bg-zinc-600 mt-2 rounded-md cursor-pointer`}
+            className={`${chat.id === activeId ? "bg-zinc-600" : ""} py-1 px-2 hover:bg-zinc-600 truncate mt-2 rounded-md cursor-pointer`}
           >
             {chat.title}
           </p>
