@@ -101,6 +101,8 @@ function App() {
         error.status === 429 || error?.message?.includes("429")
           ? "Too many requests - please wait a moment and try again."
           : "Something went wrong. Please try again.";
+      console.log(errorMessage);
+
       setChats((prev) =>
         prev.map((chat) =>
           chat.id === chatId
@@ -120,6 +122,8 @@ function App() {
             : chat,
         ),
       );
+      console.log(chats);
+
       setquestion(currentQuestion);
     } finally {
       setIsSending(false);
@@ -128,6 +132,9 @@ function App() {
   const handleClearChat = () => {
     localStorage.setItem("history", []);
     setChats([]);
+  };
+  const handleChatDelete = (id) => {
+    setChats(chats.filter((chat) => chat.id !== id));
   };
   useEffect(() => {
     localStorage.setItem("history", JSON.stringify(chats));
@@ -144,6 +151,7 @@ function App() {
             onNewChat={handleNewChat}
             onClearChat={handleClearChat}
             setShowSidebar={setShowSidebar}
+            onDeleteChat={handleChatDelete}
           />
         ) : (
           <SmallSidebar
@@ -153,6 +161,7 @@ function App() {
             onNewChat={handleNewChat}
             onClearChat={handleClearChat}
             setShowSidebar={setShowSidebar}
+            onDeleteChat={handleChatDelete}
           />
         )}
       </div>

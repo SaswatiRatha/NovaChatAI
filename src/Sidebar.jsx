@@ -8,6 +8,7 @@ const Sidebar = ({
   onSelectChat,
   setShowSidebar,
   activeId,
+  onDeleteChat,
 }) => {
   return (
     <div className="w-60 text-white py-4 text-left px-4 ">
@@ -54,6 +55,7 @@ const Sidebar = ({
           chats={chats}
           activeId={activeId}
           onSelectChat={onSelectChat}
+          onDeleteChat={onDeleteChat}
         />
       </div>
     </div>

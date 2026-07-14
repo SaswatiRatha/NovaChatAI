@@ -9,6 +9,7 @@ export const SmallSidebar = ({
   setShowSidebar,
   activeId,
   onSelectChat,
+  onDeleteChat,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -31,7 +32,7 @@ export const SmallSidebar = ({
               src={Logo}
               alt="logo"
               className="w-7 h-7 cursor-pointer"
-              onClick={onClearChat}
+              onClick={onNewChat}
             />
           )}
         </button>
@@ -61,6 +62,7 @@ export const SmallSidebar = ({
               chats={chats}
               activeId={activeId}
               onSelectChat={onSelectChat}
+              onDeleteChat={onDeleteChat}
             />
           )}
         </div>
