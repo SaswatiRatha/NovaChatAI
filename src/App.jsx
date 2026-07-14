@@ -8,6 +8,7 @@ import ChatBar from "./ChatBar";
 
 function App() {
   const [question, setquestion] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const [chats, setChats] = useState(() => {
     const history = localStorage.getItem("history");
     return history ? JSON.parse(history) : [];
@@ -34,8 +35,9 @@ function App() {
   };
   const handleAskQuestion = async () => {
     if (!question.trim()) return;
-
+    setIsSending(true);
     const currentQuestion = question;
+
     setquestion("");
     let chatId = activeId;
     if (!chatId) {
@@ -93,7 +95,32 @@ function App() {
       );
     } catch (error) {
       console.log(error);
+      const errorMessage =
+        error.status === 429 || error?.message?.includes("429")
+          ? "Too many requests - please wait a moment and try again."
+          : "Something went wrong. Please try again.";
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === chatId
+            ? {
+                ...chat,
+                results: chat.results.map((item, index) =>
+                  index === chat.results.length - 1
+                    ? {
+                        ...item,
+                        answer: errorMessage,
+                        loading: false,
+                        error: true,
+                      }
+                    : item,
+                ),
+              }
+            : chat,
+        ),
+      );
       setquestion(currentQuestion);
+    } finally {
+      setIsSending(false);
     }
   };
   const handleClearChat = () => {
@@ -121,6 +148,7 @@ function App() {
           handleAskQuestion={handleAskQuestion}
           question={question}
           setquestion={setquestion}
+          isSending={isSending}
         />
       </div>
     </div>

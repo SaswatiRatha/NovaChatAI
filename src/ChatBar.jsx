@@ -1,4 +1,4 @@
-const ChatBar = ({ handleAskQuestion, question, setquestion }) => {
+const ChatBar = ({ handleAskQuestion, question, setquestion, isSending }) => {
   const checkEnter = (e) => {
     if (!question) return false;
     if (e.key === "Enter") {
@@ -11,12 +11,13 @@ const ChatBar = ({ handleAskQuestion, question, setquestion }) => {
         onKeyDown={checkEnter}
         onChange={(e) => setquestion(e.target.value)}
         value={question}
+        disabled={isSending}
         className="w-full h-full outline-none p-3"
         type="text"
         placeholder="Ask me anything"
       />
       <button
-        disabled={question.trim() === ""}
+        disabled={question.trim() === "" || isSending}
         onClick={handleAskQuestion}
         className={`border-0 bg-none px-3 text-white cursor-pointer disabled:cursor-not-allowed disabled:text-gray-400`}
       >

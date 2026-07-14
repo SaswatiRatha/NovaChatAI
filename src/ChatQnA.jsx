@@ -3,15 +3,20 @@ import MarkdownComponents from "./MarkdownComponents";
 import { useEffect, useRef } from "react";
 const ChatQnA = ({ results }) => {
   const containerRef = useRef(null);
-  const bottomRef = useRef(null);
+  const messageRefs = useRef([]);
+  const prevLengthRef = useRef(0);
   console.log(results);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "end",
-    });
-  }, [results]);
+    if (results.length > prevLengthRef.current) {
+      const lastIndex = results.length - 1;
+      messageRefs.current[lastIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+    prevLengthRef.current = results.length;
+  }, [results.length]);
   return (
     <div
       ref={containerRef}
@@ -23,7 +28,7 @@ const ChatQnA = ({ results }) => {
       <div className=" mt-18 px-2 w-3/4 m-auto">
         <div className="text-white text-left space-y-6">
           {results.map((item, index) => (
-            <div key={index}>
+            <div key={index} ref={(msg) => (messageRefs.current[index] = msg)}>
               <div className="flex justify-end mb-3">
                 <div className="bg-zinc-500 rounded-b-3xl rounded-tl-3xl px-4 py-2 max-w-[70%]">
                   {item.question}
@@ -47,7 +52,6 @@ const ChatQnA = ({ results }) => {
               </div>
             </div>
           ))}
-          <div ref={bottomRef} />
         </div>
       </div>
     </div>
