@@ -32,6 +32,34 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
+app.post("/api/generate-image", async (req, res) => {
+  const { prompt } = req.body;
+
+  if (!prompt || !prompt.trim()) {
+    return res.status(400).json({ errpr: "Prompt is required" });
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-image",
+      contents: prompt,
+      config: {
+        responseModalities: ["IMAGE"],
+      },
+    });
+    const parts = response.candidates?.[0]?.content?.parts ?? [];
+    const imagePart = parts.find((p) => p.inlineData);
+
+    if (!imagePart) {
+      return res.status(500).json({ error: "No image was generated" });
+    }
+    res.json({ image: imagePart.inlineData.data });
+  } catch (error) {
+    console.error("Image generation error: ", error);
+    res.status(500).json({ error: "Failed to generate image" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

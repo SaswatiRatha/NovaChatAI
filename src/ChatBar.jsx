@@ -1,4 +1,11 @@
-const ChatBar = ({ handleAskQuestion, question, setquestion, isSending }) => {
+const ChatBar = ({
+  handleAskQuestion,
+  question,
+  setquestion,
+  isSending,
+  mode,
+  setMode,
+}) => {
   const checkEnter = (e) => {
     if (!question) return false;
     if (e.key === "Enter") {
@@ -7,6 +14,13 @@ const ChatBar = ({ handleAskQuestion, question, setquestion, isSending }) => {
   };
   return (
     <div className="bg-zinc-800 flex w-3/4 text-white m-auto rounded-3xl border border-zinc-400">
+      <button
+        onClick={() => setMode(mode === "text" ? "image" : "text")}
+        disabled={isSending}
+        className="px-2 cursor-pointer"
+      >
+        {mode === "image" ? "Image" : "Text"}
+      </button>
       <input
         onKeyDown={checkEnter}
         onChange={(e) => setquestion(e.target.value)}

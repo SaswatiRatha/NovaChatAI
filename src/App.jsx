@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-
-import ai from "./gemini";
 import Sidebar from "./Sidebar";
 import ChatQnA from "./ChatQnA";
 import ChatBar from "./ChatBar";
@@ -12,6 +10,7 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [question, setquestion] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [mode, setMode] = useState("text");
   const [chats, setChats] = useState(() => {
     const history = localStorage.getItem("history");
     return history ? JSON.parse(history) : [];
@@ -21,6 +20,7 @@ function App() {
     return chats[0]?.id ?? null;
   });
 
+  const API_URL = "http://localhost:3001";
   const activeChat = chats.find((chat) => chat.id === activeId);
   const results = activeChat?.results ?? [];
 
@@ -39,6 +39,7 @@ function App() {
     if (!question.trim()) return;
     setIsSending(true);
     const currentQuestion = question;
+    const currentMode = mode;
 
     setquestion("");
     let chatId = activeId;
@@ -62,7 +63,12 @@ function App() {
                   : chat.title,
               results: [
                 ...chat.results,
-                { question: currentQuestion, answer: "", loading: true },
+                {
+                  question: currentQuestion,
+                  answer: "",
+                  loading: true,
+                  type: currentMode,
+                },
               ],
             }
           : chat,
@@ -70,12 +76,24 @@ function App() {
     );
 
     try {
-      const interaction = await ai.interactions.create({
-        model: "gemini-2.5-flash",
-        input: currentQuestion,
+      const endpoint =
+        currentMode === "text" ? "/api/ask" : "/api/generate-image";
+      const bodyKey = currentMode === "text" ? "question" : "prompt";
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ [bodyKey]: currentQuestion }),
       });
 
-      const data = interaction.output_text;
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        const err = new Error(errorBody.error || "Request failed");
+        err.status = response.status;
+        throw err;
+      }
+
+      const data = await response.json();
+      const answer = currentMode === "text" ? data.answer : data.image;
 
       setChats((prev) =>
         prev.map((chat) =>
@@ -86,7 +104,7 @@ function App() {
                   index === chat.results.length - 1
                     ? {
                         ...item,
-                        answer: data,
+                        answer: answer,
                         loading: false,
                       }
                     : item,
@@ -129,13 +147,16 @@ function App() {
       setIsSending(false);
     }
   };
+
   const handleClearChat = () => {
-    localStorage.setItem("history", []);
+    localStorage.setItem("history", JSON.stringify([]));
     setChats([]);
   };
+
   const handleChatDelete = (id) => {
     setChats(chats.filter((chat) => chat.id !== id));
   };
+
   useEffect(() => {
     localStorage.setItem("history", JSON.stringify(chats));
   }, [chats]);
@@ -172,6 +193,8 @@ function App() {
           question={question}
           setquestion={setquestion}
           isSending={isSending}
+          mode={mode}
+          setMode={setMode}
         />
       </div>
     </div>

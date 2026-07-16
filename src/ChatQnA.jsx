@@ -75,6 +75,12 @@ const ChatQnA = ({ results, chatId }) => {
                         <span className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:150ms]"></span>
                         <span className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:300ms]"></span>
                       </div>
+                    ) : item.type === "image" ? (
+                      <img
+                        src={`data:image/png;base64,${item.answer}`}
+                        alt={item.question}
+                        className="rounded-lg max-w-full"
+                      />
                     ) : (
                       <ReactMarkdown components={MarkdownComponents}>
                         {item.answer}
