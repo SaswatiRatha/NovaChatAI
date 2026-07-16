@@ -5,13 +5,10 @@ const RecentSearch = ({ chats, activeId, onSelectChat, onDeleteChat }) => {
       {chats.map((chat) => (
         <div
           key={chat.id}
+          onClick={() => onSelectChat(chat.id)}
           className={`flex justify-between ${chat.id === activeId ? "bg-zinc-600" : ""} py-1 px-2 hover:bg-zinc-600 mt-2 rounded-md cursor-pointer items-center`}
         >
-          <p
-            key={chat.id}
-            onClick={() => onSelectChat(chat.id)}
-            className="truncate "
-          >
+          <p key={chat.id} className="truncate ">
             {chat.title}
           </p>
           <button onClick={() => onDeleteChat(chat.id)}>
