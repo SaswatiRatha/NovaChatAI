@@ -70,14 +70,20 @@ const ChatQnA = ({ results, chatId }) => {
                 <div className="flex justify-start">
                   <div className="bg-zinc-700 rounded-b-2xl rounded-tr-2xl px-4 py-2 max-w-[80%] box-border">
                     {item.loading ? (
-                      <div className="flex gap-1 py-2">
-                        <span className="w-2 h-2 rounded-full bg-white animate-bounce"></span>
-                        <span className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:150ms]"></span>
-                        <span className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:300ms]"></span>
-                      </div>
-                    ) : item.type === "image" ? (
+                      item.type === "image" ? (
+                        <div className="flex gap-1 py-2">
+                          Generating image...
+                        </div>
+                      ) : (
+                        <div className="flex gap-1 py-2">
+                          <span className="w-2 h-2 rounded-full bg-white animate-bounce"></span>
+                          <span className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:150ms]"></span>
+                          <span className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:300ms]"></span>
+                        </div>
+                      )
+                    ) : item.type === "image" && !item.error ? (
                       <img
-                        src={`data:image/png;base64,${item.answer}`}
+                        src={item.answer}
                         alt={item.question}
                         className="rounded-lg max-w-full"
                       />

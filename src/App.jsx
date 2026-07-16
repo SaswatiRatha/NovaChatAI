@@ -11,6 +11,7 @@ function App() {
   const [question, setquestion] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [mode, setMode] = useState("text");
+  const [audioFile, setAudioFile] = useState(null);
   const [chats, setChats] = useState(() => {
     const history = localStorage.getItem("history");
     return history ? JSON.parse(history) : [];
@@ -35,15 +36,21 @@ function App() {
     setActiveId(newChat.id);
     setquestion("");
   };
+
   const handleAskQuestion = async () => {
-    if (!question.trim()) return;
+    if (mode === "audio") {
+      if (!audioFile) return;
+    } else {
+      if (!question.trim()) return;
+    }
     setIsSending(true);
     const currentQuestion = question;
     const currentMode = mode;
 
     setquestion("");
     let chatId = activeId;
-    if (!chatId) {
+    const chatExists = chats.some((chat) => chat.id === chatId);
+    if (!chatExists) {
       chatId = crypto.randomUUID();
       setChats((prev) => [
         { id: chatId, title: currentQuestion.slice(0, 40), results: [] },
@@ -64,7 +71,10 @@ function App() {
               results: [
                 ...chat.results,
                 {
-                  question: currentQuestion,
+                  question:
+                    currentMode === "audio"
+                      ? audioFile?.name || "Audio"
+                      : currentQuestion,
                   answer: "",
                   loading: true,
                   type: currentMode,
@@ -76,14 +86,40 @@ function App() {
     );
 
     try {
-      const endpoint =
-        currentMode === "text" ? "/api/ask" : "/api/generate-image";
-      const bodyKey = currentMode === "text" ? "question" : "prompt";
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ [bodyKey]: currentQuestion }),
-      });
+      let endpoint;
+
+      switch (currentMode) {
+        case "text":
+          endpoint = "/api/ask";
+          break;
+
+        case "image":
+          endpoint = "/api/generate-image";
+          break;
+
+        case "audio":
+          endpoint = "/api/transcribe";
+          break;
+      }
+
+      let response;
+
+      if (currentMode === "audio") {
+        const formData = new FormData();
+        formData.append("audio", audioFile);
+
+        response = await fetch(`${API_URL}/api/transcribe`, {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        const bodyKey = currentMode === "text" ? "question" : "prompt";
+        response = await fetch(`${API_URL}${endpoint}`, {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({ [bodyKey]: currentQuestion }),
+        });
+      }
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => ({}));
@@ -93,7 +129,23 @@ function App() {
       }
 
       const data = await response.json();
-      const answer = currentMode === "text" ? data.answer : data.image;
+      console.log(data.image);
+
+      let answer;
+
+      switch (currentMode) {
+        case "text":
+          answer = data.answer;
+          break;
+
+        case "image":
+          answer = data.image;
+          break;
+
+        case "audio":
+          answer = data.transcript;
+          break;
+      }
 
       setChats((prev) =>
         prev.map((chat) =>
@@ -113,6 +165,7 @@ function App() {
             : chat,
         ),
       );
+      setAudioFile(null);
     } catch (error) {
       console.log(error);
       const errorMessage =
@@ -145,16 +198,25 @@ function App() {
       setquestion(currentQuestion);
     } finally {
       setIsSending(false);
+      setAudioFile(null);
     }
   };
 
   const handleClearChat = () => {
     localStorage.setItem("history", JSON.stringify([]));
     setChats([]);
+    setActiveId(null);
+    setquestion("");
   };
 
   const handleChatDelete = (id) => {
-    setChats(chats.filter((chat) => chat.id !== id));
+    setChats((prev) => {
+      const updated = prev.filter((chat) => chat.id !== id);
+      if (activeId === id) {
+        setActiveId(updated[0]?.id ?? null);
+      }
+      return updated;
+    });
   };
 
   useEffect(() => {
@@ -195,6 +257,8 @@ function App() {
           isSending={isSending}
           mode={mode}
           setMode={setMode}
+          audioFile={audioFile}
+          setAudioFile={setAudioFile}
         />
       </div>
     </div>

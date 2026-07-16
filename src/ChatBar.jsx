@@ -5,33 +5,61 @@ const ChatBar = ({
   isSending,
   mode,
   setMode,
+  audioFile,
+  setAudioFile,
 }) => {
   const checkEnter = (e) => {
-    if (!question) return false;
+    if (mode === "audio") return;
+
+    if (!question.trim()) return;
+
     if (e.key === "Enter") {
       handleAskQuestion();
     }
   };
+  const changeMode = () => {
+    if (mode === "text") {
+      setMode("image");
+    } else if (mode === "image") {
+      setMode("audio");
+    } else {
+      setMode("text");
+    }
+  };
+
   return (
     <div className="bg-zinc-800 flex w-3/4 text-white m-auto rounded-3xl border border-zinc-400">
       <button
-        onClick={() => setMode(mode === "text" ? "image" : "text")}
+        onClick={changeMode}
         disabled={isSending}
         className="px-2 cursor-pointer"
       >
-        {mode === "image" ? "Image" : "Text"}
+        {mode === "text" ? "💬" : mode === "image" ? "🖼️" : "🎤"}
       </button>
-      <input
-        onKeyDown={checkEnter}
-        onChange={(e) => setquestion(e.target.value)}
-        value={question}
-        disabled={isSending}
-        className="w-full h-full outline-none p-3"
-        type="text"
-        placeholder="Ask me anything"
-      />
+      {mode === "audio" && (
+        <input
+          type="file"
+          accept="audio/*"
+          onChange={(e) => setAudioFile(e.target.files[0])}
+        />
+      )}
+      {mode !== "audio" && (
+        <input
+          onKeyDown={checkEnter}
+          onChange={(e) => setquestion(e.target.value)}
+          value={question}
+          disabled={isSending}
+          className="w-full outline-none p-3"
+          type="text"
+          placeholder={
+            mode === "text" ? "Ask me anything" : "Describe the image"
+          }
+        />
+      )}
       <button
-        disabled={question.trim() === "" || isSending}
+        disabled={
+          isSending || (mode === "audio" ? !audioFile : question.trim() === "")
+        }
         onClick={handleAskQuestion}
         className={`border-0 bg-none px-3 text-white cursor-pointer disabled:cursor-not-allowed disabled:text-gray-400`}
       >
