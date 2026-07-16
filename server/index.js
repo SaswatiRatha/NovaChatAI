@@ -87,7 +87,7 @@ app.post("/api/transcribe", upload.single("audio"), async (req, res) => {
         },
       ],
     });
-    fs.unlink(req.file.path);
+    fs.unlinkSync(req.file.path);
     res.json({
       transcript: response.text,
     });
