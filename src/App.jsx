@@ -10,7 +10,6 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [question, setquestion] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [mode, setMode] = useState("text");
   const [audioFile, setAudioFile] = useState(null);
   const [chats, setChats] = useState(() => {
     const history = localStorage.getItem("history");
@@ -38,14 +37,13 @@ function App() {
   };
 
   const handleAskQuestion = async () => {
-    if (mode === "audio") {
-      if (!audioFile) return;
-    } else {
-      if (!question.trim()) return;
-    }
+    console.log("clicked");
+    console.log(audioFile);
+
+    if (!question || !question.trim()) return;
+
     setIsSending(true);
     const currentQuestion = question;
-    const currentMode = mode;
 
     setquestion("");
     let chatId = activeId;
@@ -71,13 +69,10 @@ function App() {
               results: [
                 ...chat.results,
                 {
-                  question:
-                    currentMode === "audio"
-                      ? audioFile?.name || "Audio"
-                      : currentQuestion,
+                  question: audioFile ? audioFile.name : currentQuestion,
                   answer: "",
                   loading: true,
-                  type: currentMode,
+                  type: audioFile ? "audio" : "text",
                 },
               ],
             }
@@ -86,25 +81,9 @@ function App() {
     );
 
     try {
-      let endpoint;
-
-      switch (currentMode) {
-        case "text":
-          endpoint = "/api/ask";
-          break;
-
-        case "image":
-          endpoint = "/api/generate-image";
-          break;
-
-        case "audio":
-          endpoint = "/api/transcribe";
-          break;
-      }
-
       let response;
 
-      if (currentMode === "audio") {
+      if (audioFile) {
         const formData = new FormData();
         formData.append("audio", audioFile);
 
@@ -113,11 +92,12 @@ function App() {
           body: formData,
         });
       } else {
-        const bodyKey = currentMode === "text" ? "question" : "prompt";
-        response = await fetch(`${API_URL}${endpoint}`, {
+        console.log("inside try text block");
+
+        response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ [bodyKey]: currentQuestion }),
+          body: JSON.stringify({ prompt: currentQuestion }),
         });
       }
 
@@ -129,24 +109,10 @@ function App() {
       }
 
       const data = await response.json();
-      console.log(data.image);
+      //console.log(data.image);
 
-      let answer;
-
-      switch (currentMode) {
-        case "text":
-          answer = data.answer;
-          break;
-
-        case "image":
-          answer = data.image;
-          break;
-
-        case "audio":
-          answer = data.transcript;
-          break;
-      }
-
+      const answer = audioFile ? data.transcript : data.answer;
+      const type = audioFile ? "audio" : data.type;
       setChats((prev) =>
         prev.map((chat) =>
           chat.id === chatId
@@ -156,7 +122,8 @@ function App() {
                   index === chat.results.length - 1
                     ? {
                         ...item,
-                        answer: answer,
+                        answer,
+                        type,
                         loading: false,
                       }
                     : item,
@@ -255,8 +222,6 @@ function App() {
           question={question}
           setquestion={setquestion}
           isSending={isSending}
-          mode={mode}
-          setMode={setMode}
           audioFile={audioFile}
           setAudioFile={setAudioFile}
         />
