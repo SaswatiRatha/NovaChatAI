@@ -40,8 +40,9 @@ function App() {
     console.log("clicked");
     console.log(audioFile);
 
-    if (!question || !question.trim()) return;
-
+    if (!audioFile && !question.trim()) {
+      return;
+    }
     setIsSending(true);
     const currentQuestion = question;
 
@@ -64,7 +65,9 @@ function App() {
               ...chat,
               title:
                 chat.results.length === 0
-                  ? currentQuestion.slice(0, 40)
+                  ? audioFile
+                    ? audioFile.name
+                    : currentQuestion.slice(0, 40)
                   : chat.title,
               results: [
                 ...chat.results,
@@ -84,6 +87,8 @@ function App() {
       let response;
 
       if (audioFile) {
+        console.log("inside audiofile try block");
+
         const formData = new FormData();
         formData.append("audio", audioFile);
 

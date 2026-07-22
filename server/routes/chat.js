@@ -1,13 +1,12 @@
 import express from "express";
-import { classify } from "../services/classifyService";
-import { generateImage } from "../services/image";
-import { generateText } from "../services/text";
+import { classify } from "../services/classifyService.js";
+import { generateImage } from "../services/image.js";
+import { generateText } from "../services/text.js";
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   const { prompt } = req.body;
-  console.log("from chat.js", prompt);
 
   if (!prompt.trim()) {
     return res.status(400).json({ error: "Prompt is requried" });

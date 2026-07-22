@@ -1,4 +1,4 @@
-import ai from "../config/genai";
+import ai from "../config/genai.js";
 
 export async function generateText(question) {
   const interaction = await ai.interactions.create({

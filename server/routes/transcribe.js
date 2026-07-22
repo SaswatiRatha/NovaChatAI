@@ -1,6 +1,7 @@
 import express from "express";
 import fs from "fs";
-import upload from "../middleware/upload";
+import upload from "../middleware/upload.js";
+import ai from "../config/genai.js";
 
 const router = express.Router();
 
