@@ -6,7 +6,7 @@ import { generateText } from "../services/text.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, history = [] } = req.body;
 
   if (!prompt.trim()) {
     return res.status(400).json({ error: "Prompt is requried" });
@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const answer = await generateText(prompt);
+    const answer = await generateText(prompt, history);
 
     return res.json({
       type: "text",

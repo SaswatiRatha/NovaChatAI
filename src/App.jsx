@@ -11,6 +11,7 @@ function App() {
   const [question, setquestion] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [audioFile, setAudioFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [chats, setChats] = useState(() => {
     const history = localStorage.getItem("history");
     return history ? JSON.parse(history) : [];
@@ -40,7 +41,7 @@ function App() {
     console.log("clicked");
     console.log(audioFile);
 
-    if (!audioFile && !question.trim()) {
+    if (!audioFile && !imageFile && !question.trim()) {
       return;
     }
     setIsSending(true);
@@ -72,7 +73,11 @@ function App() {
               results: [
                 ...chat.results,
                 {
-                  question: audioFile ? audioFile.name : currentQuestion,
+                  question: audioFile
+                    ? audioFile.name
+                    : imageFile
+                      ? currentQuestion || `[image] ${imageFile.name}`
+                      : currentQuestion,
                   answer: "",
                   loading: true,
                   type: audioFile ? "audio" : "text",
@@ -96,13 +101,33 @@ function App() {
           method: "POST",
           body: formData,
         });
+      } else if (imageFile) {
+        console.log("Inside image file try block");
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        formData.append("prompt", currentQuestion || "What's in this image?");
+
+        response = await fetch(`${API_URL}/api/vision`, {
+          method: "POST",
+          body: formData,
+        });
       } else {
         console.log("inside try text block");
+        const priorChat = chats.find((chat) => chat.id === chatId);
+        const convHistory = (priorChat?.results ?? [])
+          .filter((r) => r.type === "text" && !r.error)
+          .flatMap((r) => [
+            { role: "user", content: r.question },
+            { role: "assistant", content: r.answer },
+          ]);
 
         response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ prompt: currentQuestion }),
+          body: JSON.stringify({
+            prompt: currentQuestion,
+            history: convHistory,
+          }),
         });
       }
 
@@ -117,7 +142,7 @@ function App() {
       //console.log(data.image);
 
       const answer = audioFile ? data.transcript : data.answer;
-      const type = audioFile ? "audio" : data.type;
+      const type = audioFile ? "audio" : imageFile ? "text" : data.type;
       setChats((prev) =>
         prev.map((chat) =>
           chat.id === chatId
@@ -171,6 +196,7 @@ function App() {
     } finally {
       setIsSending(false);
       setAudioFile(null);
+      setImageFile(null);
     }
   };
 
@@ -229,6 +255,8 @@ function App() {
           isSending={isSending}
           audioFile={audioFile}
           setAudioFile={setAudioFile}
+          imageFile={imageFile}
+          setImageFile={setImageFile}
         />
       </div>
     </div>

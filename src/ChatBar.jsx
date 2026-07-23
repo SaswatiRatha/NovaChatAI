@@ -8,6 +8,8 @@ const ChatBar = ({
   isSending,
   audioFile,
   setAudioFile,
+  imageFile,
+  setImageFile,
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const checkEnter = (e) => {
@@ -32,6 +34,7 @@ const ChatBar = ({
           <UploadOptions
             setAudioFile={setAudioFile}
             setShowOptions={setShowOptions}
+            setImageFile={setImageFile}
           />
         )}
       </div>
@@ -44,6 +47,20 @@ const ChatBar = ({
 
             <button
               onClick={() => setAudioFile(null)}
+              className="text-red-400 hover:text-red-500"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+        {imageFile && (
+          <div className="flex items-center gap-2 bg-zinc-700 rounded-full px-3 py-1 shrink-0">
+            <span>🖼️</span>
+
+            <span className="max-w-32 truncate text-sm">{imageFile.name}</span>
+
+            <button
+              onClick={() => setImageFile(null)}
               className="text-red-400 hover:text-red-500"
             >
               ✕
@@ -63,7 +80,7 @@ const ChatBar = ({
       </div>
 
       <button
-        disabled={isSending || (!question.trim() && !audioFile)}
+        disabled={isSending || (!question.trim() && !audioFile && !imageFile)}
         onClick={handleAskQuestion}
         className="p-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
