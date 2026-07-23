@@ -14,12 +14,9 @@ export async function analyzeImage(filePath, mimetype, prompt) {
           {
             type: "image",
             source: {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: mimetype,
-                data: base64Image,
-              },
+              type: "base64",
+              media_type: mimetype,
+              data: base64Image,
             },
           },
           {

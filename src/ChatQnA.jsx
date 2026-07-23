@@ -62,8 +62,15 @@ const ChatQnA = ({ results, chatId }) => {
                 style={isLast ? { minHeight: "70vh" } : undefined}
               >
                 <div className="flex justify-end mb-3">
-                  <div className="bg-zinc-500 rounded-b-3xl rounded-tl-3xl px-4 py-2 max-w-[70%]">
-                    {item.question}
+                  <div className="bg-zinc-500 rounded-b-3xl rounded-tl-3xl px-4 py-2 max-w-[70%] flex flex-col gap-2">
+                    {item.imagePreview && (
+                      <img
+                        src={item.imagePreview}
+                        alt="Uploaded image"
+                        className="rounded-lg max-w-full max-h-64 object-contain"
+                      />
+                    )}
+                    {item.question && <span>{item.question}</span>}
                   </div>
                 </div>
 

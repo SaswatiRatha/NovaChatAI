@@ -20,6 +20,22 @@ const ChatBar = ({
     }
   };
 
+  const handlePaste = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+      if (item.type.startsWith("image")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          setImageFile(file);
+        }
+        break;
+      }
+    }
+  };
+
   return (
     <div className="bg-zinc-800 flex w-3/4 text-white m-auto rounded-3xl border border-zinc-400">
       <div className="relative">
@@ -70,6 +86,7 @@ const ChatBar = ({
 
         <input
           onKeyDown={checkEnter}
+          onPaste={handlePaste}
           onChange={(e) => setquestion(e.target.value)}
           value={question}
           disabled={isSending}
